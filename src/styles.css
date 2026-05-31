@@ -61,6 +61,11 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme inline {
+  --color-aqua: var(--aqua);
+  --color-deep: var(--deep);
+}
+
 :root {
   --radius: 0.875rem;
   --background: oklch(0.99 0.005 220);
