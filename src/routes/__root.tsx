@@ -83,6 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "CostaMar Pool Cleaners" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "CostaMar Pool Cleaners | Professional Pool Cleaning Services" },
+      { name: "twitter:title", content: "CostaMar Pool Cleaners | Professional Pool Cleaning Services" },
+      { property: "og:description", content: "Professional pool cleaning, maintenance, and chemical balancing. Get a free quote from CostaMar Pool Cleaners today." },
+      { name: "twitter:description", content: "Professional pool cleaning, maintenance, and chemical balancing. Get a free quote from CostaMar Pool Cleaners today." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bf0e2cf3-d8bf-41d5-8037-d0a2351b9686/id-preview-ecb5a717--dbf499b0-d988-4624-9838-0464dfbd82a4.lovable.app-1780250218405.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bf0e2cf3-d8bf-41d5-8037-d0a2351b9686/id-preview-ecb5a717--dbf499b0-d988-4624-9838-0464dfbd82a4.lovable.app-1780250218405.png" },
     ],
     links: [
       {
