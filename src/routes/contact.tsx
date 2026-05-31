@@ -31,7 +31,7 @@ function ContactPage() {
               Fast response times — usually within the hour during business hours.
             </p>
             <Button asChild size="lg" className="mt-8 bg-aqua-gradient text-deep font-semibold shadow-glow">
-              <a href="tel:+15555550123"><Phone className="mr-2 h-5 w-5" /> Call Now</a>
+              <a href="tel:+12815157039"><Phone className="mr-2 h-5 w-5" /> Call Now</a>
             </Button>
           </div>
         </section>
@@ -39,8 +39,8 @@ function ContactPage() {
         <section className="py-16">
           <div className="mx-auto grid max-w-6xl gap-8 px-4 md:grid-cols-2 md:px-8">
             <div className="space-y-5">
-              <InfoCard icon={Phone} title="Phone" value="(555) 555-0123" href="tel:+15555550123" />
-              <InfoCard icon={Mail} title="Email" value="hello@costamarpools.com" href="mailto:hello@costamarpools.com" />
+              <InfoCard icon={Phone} title="Phone" value="(281) 515-7039" href="tel:+12815157039" />
+              <InfoCard icon={Mail} title="Email" value="alanizjaden4@gmail.com" href="mailto:alanizjaden4@gmail.com" />
               <InfoCard icon={Clock} title="Business Hours" value="Mon – Sat · 8:00 AM – 6:00 PM" />
               <InfoCard icon={MapPin} title="Service Area" value="Coastal Region & Surrounding Cities" />
             </div>

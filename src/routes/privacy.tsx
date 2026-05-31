@@ -39,7 +39,7 @@ function PrivacyPage() {
             </p>
             <h2 className="text-xl font-semibold">Contact</h2>
             <p>
-              Questions? Email <a className="text-primary underline" href="mailto:hello@costamarpools.com">hello@costamarpools.com</a>.
+              Questions? Email <a className="text-primary underline" href="mailto:alanizjaden4@gmail.com">alanizjaden4@gmail.com</a>.
             </p>
           </div>
         </article>
