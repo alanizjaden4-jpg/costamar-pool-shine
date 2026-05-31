@@ -25,8 +25,8 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">Contact</h3>
             <ul className="mt-3 space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="tel:+15555550123" className="hover:text-accent">(555) 555-0123</a></li>
-              <li><a href="mailto:hello@costamarpools.com" className="hover:text-accent">hello@costamarpools.com</a></li>
+              <li><a href="tel:+12815157039" className="hover:text-accent">(281) 515-7039</a></li>
+              <li><a href="mailto:alanizjaden4@gmail.com" className="hover:text-accent">alanizjaden4@gmail.com</a></li>
               <li>Mon–Sat · 8am – 6pm</li>
             </ul>
           </div>

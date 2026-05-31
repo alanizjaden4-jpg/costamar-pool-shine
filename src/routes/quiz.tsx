@@ -93,18 +93,20 @@ function QuizPage() {
     }
     setErrors({});
     setSubmitting(true);
-    const payload = { ...parsed.data, quiz: answers, submittedAt: new Date().toISOString() };
-    try {
-      const prev = JSON.parse(localStorage.getItem("costamar_leads") || "[]");
-      prev.push(payload);
-      localStorage.setItem("costamar_leads", JSON.stringify(prev));
-    } catch {
-      // ignore
-    }
-    setTimeout(() => {
-      setSubmitting(false);
-      setDone(true);
-    }, 600);
+    const payload = { ...parsed.data, quiz: answers };
+    fetch("/api/public/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Submission failed");
+        setDone(true);
+      })
+      .catch(() => {
+        setErrors({ form: "Something went wrong. Please call (281) 515-7039." });
+      })
+      .finally(() => setSubmitting(false));
   };
 
   return (
@@ -214,6 +216,7 @@ function QuizPage() {
                 >
                   {submitting ? "Submitting…" : "Get My Recommendation"}
                 </Button>
+                {errors.form && <p className="mt-2 text-center text-sm text-destructive">{errors.form}</p>}
                 <button
                   type="button"
                   onClick={() => setStep((s) => s - 1)}
