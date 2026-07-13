@@ -13,9 +13,9 @@ import { FloatingCall } from "@/components/site/FloatingCall";
 export const Route = createFileRoute("/quiz")({
   head: () => ({
     meta: [
-      { title: "Pool Quiz — Get a Custom Recommendation | CostaMar" },
+      { title: "Pool Quiz — Get a Custom Recommendation | Coastal Pool Service" },
       { name: "description", content: "Take our 60-second pool quiz and get a personalized service recommendation and quote." },
-      { property: "og:title", content: "Pool Quiz | CostaMar Pool Cleaners" },
+      { property: "og:title", content: "Pool Quiz | Coastal Pool Service" },
       { property: "og:description", content: "Get a custom pool service recommendation in under a minute." },
       { property: "og:url", content: "/quiz" },
     ],
@@ -139,7 +139,7 @@ function QuizPage() {
                 </div>
                 <h2 className="mt-5 text-2xl font-bold text-foreground">Thank you!</h2>
                 <p className="mt-2 text-muted-foreground">
-                  A CostaMar Pool Cleaners specialist will contact you shortly.
+                  A Coastal Pool Service specialist will contact you shortly.
                 </p>
                 <Button asChild className="mt-6 bg-aqua-gradient text-deep font-semibold">
                   <Link to="/">Return Home</Link>
