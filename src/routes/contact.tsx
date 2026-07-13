@@ -42,12 +42,12 @@ function ContactPage() {
               <InfoCard icon={Phone} title="Phone" value="(281) 515-7039" href="tel:+12815157039" />
               <InfoCard icon={Mail} title="Email" value="alanizjaden4@gmail.com" href="mailto:alanizjaden4@gmail.com" />
               <InfoCard icon={Clock} title="Business Hours" value="Mon – Sat · 8:00 AM – 6:00 PM" />
-              <InfoCard icon={MapPin} title="Service Area" value="Coastal Region & Surrounding Cities" />
+              <InfoCard icon={MapPin} title="Service Area" value="Houston & Surrounding Areas" />
             </div>
             <div className="overflow-hidden rounded-2xl border border-border shadow-elegant">
               <iframe
                 title="CostaMar Pool Cleaners service area"
-                src="https://www.google.com/maps?q=Miami%2C+FL&output=embed"
+                src="https://www.google.com/maps?q=Houston%2C+TX&output=embed"
                 width="100%"
                 height="100%"
                 loading="lazy"
