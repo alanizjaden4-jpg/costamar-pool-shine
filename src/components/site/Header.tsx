@@ -33,7 +33,7 @@ export function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-8">
         <Link to="/" className="flex items-center gap-2" aria-label="CostaMar Pool Cleaners home">
-          <img src={logo} alt="CostaMar Pools & Patio logo" className="h-11 w-auto" />
+          <img src={logo} alt="CostaMar Pool Cleaners logo" className="h-11 w-auto" />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
