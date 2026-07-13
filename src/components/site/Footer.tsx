@@ -17,6 +17,7 @@ export function Footer() {
             <ul className="mt-3 space-y-2 text-sm">
               <li><Link to="/" className="hover:text-accent">Home</Link></li>
               <li><Link to="/services" className="hover:text-accent">Services</Link></li>
+              <li><Link to="/pricing" className="hover:text-accent">Pricing</Link></li>
               <li><Link to="/quiz" className="hover:text-accent">Pool Quiz</Link></li>
               <li><Link to="/contact" className="hover:text-accent">Contact</Link></li>
               <li><Link to="/privacy" className="hover:text-accent">Privacy Policy</Link></li>
@@ -33,7 +34,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">Service Area</h3>
             <p className="mt-3 text-sm text-primary-foreground/80">
-              Proudly serving homeowners across the coastal region.
+              Proudly serving Houston &amp; surrounding areas.
             </p>
           </div>
         </div>
