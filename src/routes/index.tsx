@@ -23,9 +23,9 @@ import hero from "@/assets/hero-pool.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CostaMar Pool Cleaners | Professional Pool Cleaning Services" },
-      { name: "description", content: "Professional pool cleaning, maintenance, and chemical balancing. Get a free quote from CostaMar Pool Cleaners today." },
-      { property: "og:title", content: "CostaMar Pool Cleaners | Professional Pool Cleaning Services" },
+      { title: "Coastal Pool Service | Professional Pool Cleaning Services" },
+      { name: "description", content: "Professional pool cleaning, maintenance, and chemical balancing. Get a free quote from Coastal Pool Service today." },
+      { property: "og:title", content: "Coastal Pool Service | Professional Pool Cleaning Services" },
       { property: "og:description", content: "Weekly pool cleaning, chemical balancing & equipment care across the coast." },
       { property: "og:url", content: "/" },
     ],

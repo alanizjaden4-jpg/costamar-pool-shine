@@ -8,9 +8,9 @@ import { FloatingCall } from "@/components/site/FloatingCall";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact CostaMar Pool Cleaners" },
+      { title: "Contact Coastal Pool Service" },
       { name: "description", content: "Call, email, or visit us. Fast response times and friendly local pool pros." },
-      { property: "og:title", content: "Contact CostaMar Pool Cleaners" },
+      { property: "og:title", content: "Contact Coastal Pool Service" },
       { property: "og:description", content: "Get in touch with your local pool care experts." },
       { property: "og:url", content: "/contact" },
     ],
@@ -46,7 +46,7 @@ function ContactPage() {
             </div>
             <div className="overflow-hidden rounded-2xl border border-border shadow-elegant">
               <iframe
-                title="CostaMar Pool Cleaners service area"
+                title="Coastal Pool Service service area"
                 src="https://www.google.com/maps?q=Houston%2C+TX&output=embed"
                 width="100%"
                 height="100%"

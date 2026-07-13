@@ -9,9 +9,9 @@ import { services } from "@/components/site/services-data";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Pool Cleaning Services | CostaMar Pool Cleaners" },
+      { title: "Pool Cleaning Services | Coastal Pool Service" },
       { name: "description", content: "Weekly cleaning, chemical balancing, filter care, equipment inspection, green pool recovery and one-time cleanups." },
-      { property: "og:title", content: "Pool Cleaning Services | CostaMar Pool Cleaners" },
+      { property: "og:title", content: "Pool Cleaning Services | Coastal Pool Service" },
       { property: "og:description", content: "Full-service pool care to keep your water crystal clear year-round." },
       { property: "og:url", content: "/services" },
     ],

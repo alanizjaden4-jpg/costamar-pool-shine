@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <img src={logo} alt="CostaMar Pool Cleaners" className="h-14 w-auto" />
+            <img src={logo} alt="Coastal Pool Service" className="h-14 w-auto" />
             <p className="mt-3 text-sm text-primary-foreground/70">
               Premium residential pool cleaning & maintenance you can count on.
             </p>
@@ -39,7 +39,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-10 border-t border-primary-foreground/15 pt-6 text-center text-xs text-primary-foreground/60">
-          © {new Date().getFullYear()} CostaMar Pool Cleaners. All rights reserved.
+          © {new Date().getFullYear()} Coastal Pool Service. All rights reserved.
         </div>
       </div>
     </footer>

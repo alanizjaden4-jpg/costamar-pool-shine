@@ -5,8 +5,8 @@ import { Footer } from "@/components/site/Footer";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy | CostaMar Pool Cleaners" },
-      { name: "description", content: "How CostaMar Pool Cleaners collects, uses and protects your information." },
+      { title: "Privacy Policy | Coastal Pool Service" },
+      { name: "description", content: "How Coastal Pool Service collects, uses and protects your information." },
       { property: "og:url", content: "/privacy" },
     ],
     links: [{ rel: "canonical", href: "/privacy" }],
@@ -24,7 +24,7 @@ function PrivacyPage() {
           <p className="mt-4 text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
           <div className="mt-8 space-y-6 text-foreground/90">
             <p>
-              CostaMar Pool Cleaners ("we", "our", "us") respects your privacy. This policy explains
+              Coastal Pool Service ("we", "our", "us") respects your privacy. This policy explains
               how we collect and use information when you use our website or request services.
             </p>
             <h2 className="text-xl font-semibold">Information We Collect</h2>
