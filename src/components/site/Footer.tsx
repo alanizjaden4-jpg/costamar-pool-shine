@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <img src={logo} alt="CostaMar Pools & Patio" className="h-14 w-auto" />
+            <img src={logo} alt="CostaMar Pool Cleaners" className="h-14 w-auto" />
             <p className="mt-3 text-sm text-primary-foreground/70">
               Premium residential pool cleaning & maintenance you can count on.
             </p>
@@ -17,6 +17,7 @@ export function Footer() {
             <ul className="mt-3 space-y-2 text-sm">
               <li><Link to="/" className="hover:text-accent">Home</Link></li>
               <li><Link to="/services" className="hover:text-accent">Services</Link></li>
+              <li><Link to="/pricing" className="hover:text-accent">Pricing</Link></li>
               <li><Link to="/quiz" className="hover:text-accent">Pool Quiz</Link></li>
               <li><Link to="/contact" className="hover:text-accent">Contact</Link></li>
               <li><Link to="/privacy" className="hover:text-accent">Privacy Policy</Link></li>
@@ -33,12 +34,12 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">Service Area</h3>
             <p className="mt-3 text-sm text-primary-foreground/80">
-              Proudly serving homeowners across the coastal region.
+              Proudly serving Houston &amp; surrounding areas.
             </p>
           </div>
         </div>
         <div className="mt-10 border-t border-primary-foreground/15 pt-6 text-center text-xs text-primary-foreground/60">
-          © {new Date().getFullYear()} CostaMar Pools & Patio. All rights reserved.
+          © {new Date().getFullYear()} CostaMar Pool Cleaners. All rights reserved.
         </div>
       </div>
     </footer>

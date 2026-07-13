@@ -44,8 +44,8 @@ function ServicesPage() {
                   </div>
                   <h2 className="mt-5 text-xl font-semibold text-foreground">{s.title}</h2>
                   <p className="mt-2 text-sm text-muted-foreground">{s.description}</p>
-                  <Link to="/quiz" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:gap-2 transition-all">
-                    Get a quote <ArrowRight className="h-4 w-4" />
+                  <Link to="/pricing" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:gap-2 transition-all">
+                    View pricing &amp; details <ArrowRight className="h-4 w-4" />
                   </Link>
                 </article>
               ))}
