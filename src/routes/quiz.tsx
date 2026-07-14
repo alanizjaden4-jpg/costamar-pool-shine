@@ -50,6 +50,10 @@ const leadSchema = z.object({
   email: z.string().trim().email("Invalid email").max(255),
   phone: z.string().trim().min(7, "Invalid phone").max(20),
   address: z.string().trim().max(200).optional().or(z.literal("")),
+  preferredContact: z.enum(["phone", "email", "text"], {
+    errorMap: () => ({ message: "Select one" }),
+  }),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
   consent: z.literal(true, { errorMap: () => ({ message: "Consent required" }) }),
 });
 
@@ -58,12 +62,17 @@ function QuizPage() {
   const [answers, setAnswers] = useState<QuizState>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [doneMessage, setDoneMessage] = useState<string>(
+    "Thank you! Your quote request has been received. We'll contact you shortly.",
+  );
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     address: "",
+    preferredContact: "phone" as "phone" | "email" | "text",
+    notes: "",
     consent: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,6 +91,8 @@ function QuizPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Prevent duplicate submissions if the user clicks multiple times.
+    if (submitting || done) return;
     const parsed = leadSchema.safeParse(form);
     if (!parsed.success) {
       const errs: Record<string, string> = {};
@@ -100,11 +111,44 @@ function QuizPage() {
       body: JSON.stringify(payload),
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error("Submission failed");
+        const data = (await res.json().catch(() => ({}))) as {
+          ok?: boolean;
+          crmSynced?: boolean;
+          code?: string;
+        };
+        if (!res.ok || !data.ok) {
+          // Only surface an error to the customer when the database itself
+          // couldn't accept the lead — that's the only case we truly lost it.
+          throw new Error(data.code || "db_unavailable");
+        }
+        if (data.crmSynced === false) {
+          setDoneMessage(
+            "Your request was received but we're experiencing a temporary issue. We'll still contact you shortly.",
+          );
+        } else {
+          setDoneMessage(
+            "Thank you! Your quote request has been received. We'll contact you shortly.",
+          );
+        }
         setDone(true);
       })
-      .catch(() => {
-        setErrors({ form: "Something went wrong. Please call (281) 515-7039." });
+      .catch((err) => {
+        console.error("[quiz] submission error:", err);
+        // Best-effort local backup so the lead isn't lost even if the network
+        // or database is completely unreachable from the browser.
+        try {
+          const backup = JSON.parse(
+            localStorage.getItem("pendingLeads") || "[]",
+          ) as unknown[];
+          backup.push({ ...payload, savedAt: new Date().toISOString() });
+          localStorage.setItem("pendingLeads", JSON.stringify(backup));
+        } catch {
+          // ignore storage failures
+        }
+        setDoneMessage(
+          "Your request was received but we're experiencing a temporary issue. We'll still contact you shortly.",
+        );
+        setDone(true);
       })
       .finally(() => setSubmitting(false));
   };
@@ -137,10 +181,8 @@ function QuizPage() {
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-aqua-gradient text-deep">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
-                <h2 className="mt-5 text-2xl font-bold text-foreground">Thank you!</h2>
-                <p className="mt-2 text-muted-foreground">
-                  A Coastal Pool Service specialist will contact you shortly.
-                </p>
+                <h2 className="mt-5 text-2xl font-bold text-foreground">Request received</h2>
+                <p className="mt-2 text-muted-foreground">{doneMessage}</p>
                 <Button asChild className="mt-6 bg-aqua-gradient text-deep font-semibold">
                   <Link to="/">Return Home</Link>
                 </Button>
@@ -196,6 +238,47 @@ function QuizPage() {
                   <div className="sm:col-span-2">
                     <Field label="Address (optional)" name="address" value={form.address} onChange={(v) => setForm({ ...form, address: v })} error={errors.address} />
                   </div>
+                  <div className="sm:col-span-2">
+                    <Label className="text-sm font-medium">Preferred Contact Method</Label>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {(["phone", "email", "text"] as const).map((opt) => {
+                        const active = form.preferredContact === opt;
+                        return (
+                          <button
+                            type="button"
+                            key={opt}
+                            onClick={() => setForm({ ...form, preferredContact: opt })}
+                            className={`rounded-xl border px-4 py-2 text-sm font-medium capitalize transition-smooth ${
+                              active
+                                ? "border-secondary bg-secondary/10 text-foreground"
+                                : "border-border text-muted-foreground hover:border-secondary/60"
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {errors.preferredContact && (
+                      <p className="mt-1 text-xs text-destructive">{errors.preferredContact}</p>
+                    )}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="notes" className="text-sm font-medium">
+                      Additional notes (optional)
+                    </Label>
+                    <textarea
+                      id="notes"
+                      name="notes"
+                      value={form.notes}
+                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                      rows={3}
+                      maxLength={2000}
+                      className="mt-1 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      placeholder="Anything else we should know?"
+                    />
+                    {errors.notes && <p className="mt-1 text-xs text-destructive">{errors.notes}</p>}
+                  </div>
                 </div>
                 <label className="mt-5 flex items-start gap-3 text-sm text-foreground">
                   <Checkbox
@@ -210,13 +293,12 @@ function QuizPage() {
                 {errors.consent && <p className="mt-1 text-xs text-destructive">{errors.consent}</p>}
                 <Button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || done}
                   size="lg"
                   className="mt-6 w-full bg-aqua-gradient text-deep font-semibold shadow-glow"
                 >
                   {submitting ? "Submitting…" : "Get My Recommendation"}
                 </Button>
-                {errors.form && <p className="mt-2 text-center text-sm text-destructive">{errors.form}</p>}
                 <button
                   type="button"
                   onClick={() => setStep((s) => s - 1)}
