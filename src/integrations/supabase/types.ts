@@ -19,14 +19,19 @@ export type Database = {
           address: string | null
           condition: string | null
           created_at: string
+          crm_error: string | null
+          crm_synced: boolean
           email: string
           email_sent: boolean
           first_name: string
+          hubspot_contact_id: string | null
           id: string
           last_name: string
+          notes: string | null
           phone: string
           pool_size: string | null
           pool_type: string | null
+          preferred_contact: string | null
           service_needed: string | null
           timing: string | null
         }
@@ -34,14 +39,19 @@ export type Database = {
           address?: string | null
           condition?: string | null
           created_at?: string
+          crm_error?: string | null
+          crm_synced?: boolean
           email: string
           email_sent?: boolean
           first_name: string
+          hubspot_contact_id?: string | null
           id?: string
           last_name: string
+          notes?: string | null
           phone: string
           pool_size?: string | null
           pool_type?: string | null
+          preferred_contact?: string | null
           service_needed?: string | null
           timing?: string | null
         }
@@ -49,14 +59,19 @@ export type Database = {
           address?: string | null
           condition?: string | null
           created_at?: string
+          crm_error?: string | null
+          crm_synced?: boolean
           email?: string
           email_sent?: boolean
           first_name?: string
+          hubspot_contact_id?: string | null
           id?: string
           last_name?: string
+          notes?: string | null
           phone?: string
           pool_size?: string | null
           pool_type?: string | null
+          preferred_contact?: string | null
           service_needed?: string | null
           timing?: string | null
         }
