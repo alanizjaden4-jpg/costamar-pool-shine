@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const leadSchema = z.object({
   firstName: z.string().trim().min(1).max(60),
@@ -22,7 +21,10 @@ const leadSchema = z.object({
     .optional(),
 });
 
-const HUBSPOT_GATEWAY = "https://connector-gateway.lovable.dev/hubspot";
+// Call HubSpot directly — no Lovable gateway dependency. Works on any host
+// (self-hosted Cloudflare, Lovable, local) as long as HUBSPOT_ACCESS_TOKEN
+// is present in the runtime environment.
+const HUBSPOT_API = "https://api.hubapi.com";
 
 async function syncToHubSpot(lead: {
   firstName: string;
@@ -40,10 +42,15 @@ async function syncToHubSpot(lead: {
     timing?: string;
   };
 }): Promise<{ id: string | null; error: string | null }> {
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-  const HUBSPOT_API_KEY = process.env.HUBSPOT_API_KEY;
-  if (!LOVABLE_API_KEY || !HUBSPOT_API_KEY) {
-    return { id: null, error: "HubSpot credentials not configured" };
+  // Support the primary token name plus common aliases so a token stored
+  // under any of these in Cloudflare Secrets works without further config.
+  const token =
+    process.env.HUBSPOT_ACCESS_TOKEN ||
+    process.env.HUBSPOT_PRIVATE_APP_TOKEN ||
+    process.env.HUBSPOT_TOKEN ||
+    process.env.HUBSPOT_API_KEY;
+  if (!token) {
+    return { id: null, error: "HUBSPOT_ACCESS_TOKEN not configured" };
   }
 
   // Concatenate quiz + notes into a single free-form field so we don't
@@ -69,14 +76,15 @@ async function syncToHubSpot(lead: {
   if (lead.address) properties.address = lead.address;
   if (summary) properties.message = summary;
 
+  const authHeaders = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
   const doCall = async (): Promise<Response> =>
-    fetch(`${HUBSPOT_GATEWAY}/crm/v3/objects/contacts`, {
+    fetch(`${HUBSPOT_API}/crm/v3/objects/contacts`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": HUBSPOT_API_KEY,
-        "Content-Type": "application/json",
-      },
+      headers: authHeaders,
       body: JSON.stringify({ properties }),
     });
 
@@ -87,13 +95,9 @@ async function syncToHubSpot(lead: {
 
       // If the contact already exists, update it instead of failing.
       if (res.status === 409) {
-        const searchRes = await fetch(`${HUBSPOT_GATEWAY}/crm/v3/objects/contacts/search`, {
+        const searchRes = await fetch(`${HUBSPOT_API}/crm/v3/objects/contacts/search`, {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": HUBSPOT_API_KEY,
-            "Content-Type": "application/json",
-          },
+          headers: authHeaders,
           body: JSON.stringify({
             filterGroups: [
               { filters: [{ propertyName: "email", operator: "EQ", value: lead.email }] },
@@ -109,14 +113,10 @@ async function syncToHubSpot(lead: {
           const existingId = searchBody.results?.[0]?.id;
           if (existingId) {
             const patchRes = await fetch(
-              `${HUBSPOT_GATEWAY}/crm/v3/objects/contacts/${existingId}`,
+              `${HUBSPOT_API}/crm/v3/objects/contacts/${existingId}`,
               {
                 method: "PATCH",
-                headers: {
-                  Authorization: `Bearer ${LOVABLE_API_KEY}`,
-                  "X-Connection-Api-Key": HUBSPOT_API_KEY,
-                  "Content-Type": "application/json",
-                },
+                headers: authHeaders,
                 body: JSON.stringify({ properties }),
               },
             );
@@ -177,37 +177,48 @@ export const Route = createFileRoute("/api/public/leads")({
 
         const d = parsed.data;
 
-        // 1) Always save the lead locally first. This is the source of truth
-        //    and guarantees the request is never lost, even if HubSpot is down.
-        const { data: lead, error } = await supabaseAdmin
-          .from("leads")
-          .insert({
-            first_name: d.firstName,
-            last_name: d.lastName,
-            email: d.email,
-            phone: d.phone,
-            address: d.address || null,
-            preferred_contact: d.preferredContact ?? null,
-            notes: d.notes || null,
-            pool_type: d.quiz?.poolType ?? null,
-            pool_size: d.quiz?.poolSize ?? null,
-            condition: d.quiz?.condition ?? null,
-            service_needed: d.quiz?.serviceNeeded ?? null,
-            timing: d.quiz?.timing ?? null,
-          })
-          .select("id")
-          .single();
-
-        if (error) {
-          console.error("[leads] DB insert failed", error);
-          // Only real database failure surfaces as an error to the client.
-          return Response.json(
-            { error: "Could not save lead", code: "db_unavailable" },
-            { status: 503 },
-          );
+        // 1) Best-effort local DB save. Optional — the deployment does NOT
+        //    need Supabase to be configured. If SUPABASE_URL or the service
+        //    role key are missing (self-hosted Cloudflare without a DB),
+        //    we skip the save entirely and still create the HubSpot contact.
+        let leadId: string | null = null;
+        const hasSupabase =
+          !!process.env.SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+        if (hasSupabase) {
+          try {
+            const { supabaseAdmin } = await import(
+              "@/integrations/supabase/client.server"
+            );
+            const { data: lead, error } = await supabaseAdmin
+              .from("leads")
+              .insert({
+                first_name: d.firstName,
+                last_name: d.lastName,
+                email: d.email,
+                phone: d.phone,
+                address: d.address || null,
+                preferred_contact: d.preferredContact ?? null,
+                notes: d.notes || null,
+                pool_type: d.quiz?.poolType ?? null,
+                pool_size: d.quiz?.poolSize ?? null,
+                condition: d.quiz?.condition ?? null,
+                service_needed: d.quiz?.serviceNeeded ?? null,
+                timing: d.quiz?.timing ?? null,
+              })
+              .select("id")
+              .single();
+            if (error) {
+              console.warn("[leads] DB insert failed (continuing):", error);
+            } else {
+              leadId = lead.id;
+            }
+          } catch (err) {
+            console.warn("[leads] DB save skipped:", err);
+          }
         }
 
-        // 2) Sync to HubSpot with automatic retry. Never fails the request.
+        // 2) Sync to HubSpot directly. This is the primary side effect and
+        //    the source of truth for the customer's request.
         const hs = await syncToHubSpot({
           firstName: d.firstName,
           lastName: d.lastName,
@@ -219,53 +230,67 @@ export const Route = createFileRoute("/api/public/leads")({
           quiz: d.quiz,
         });
 
-        await supabaseAdmin
-          .from("leads")
-          .update({
-            hubspot_contact_id: hs.id,
-            crm_synced: hs.id !== null,
-            crm_error: hs.error,
-          })
-          .eq("id", lead.id);
-
-        // 3) Best-effort admin email notification.
-        try {
-          const { error: emailError } = await supabaseAdmin.rpc("enqueue_email" as never, {
-            queue_name: "transactional_emails",
-            payload: {
-              template_name: "new-lead-notification",
-              recipient_email: "alanizjaden4@gmail.com",
-              template_data: {
-                firstName: d.firstName,
-                lastName: d.lastName,
-                email: d.email,
-                phone: d.phone,
-                address: d.address || "",
-                preferredContact: d.preferredContact || "",
-                notes: d.notes || "",
-                quiz: d.quiz ?? {},
-                crmSynced: hs.id !== null,
-                crmError: hs.error || "",
-              },
-              idempotency_key: `lead-${lead.id}`,
-            },
-          } as never);
-          if (!emailError) {
+        // 3) Best-effort follow-ups if Supabase is available. Never block.
+        if (hasSupabase && leadId) {
+          try {
+            const { supabaseAdmin } = await import(
+              "@/integrations/supabase/client.server"
+            );
             await supabaseAdmin
               .from("leads")
-              .update({ email_sent: true })
-              .eq("id", lead.id);
+              .update({
+                hubspot_contact_id: hs.id,
+                crm_synced: hs.id !== null,
+                crm_error: hs.error,
+              })
+              .eq("id", leadId);
+
+            const { error: emailError } = await supabaseAdmin.rpc(
+              "enqueue_email" as never,
+              {
+                queue_name: "transactional_emails",
+                payload: {
+                  template_name: "new-lead-notification",
+                  recipient_email: "alanizjaden4@gmail.com",
+                  template_data: {
+                    firstName: d.firstName,
+                    lastName: d.lastName,
+                    email: d.email,
+                    phone: d.phone,
+                    address: d.address || "",
+                    preferredContact: d.preferredContact || "",
+                    notes: d.notes || "",
+                    quiz: d.quiz ?? {},
+                    crmSynced: hs.id !== null,
+                    crmError: hs.error || "",
+                  },
+                  idempotency_key: `lead-${leadId}`,
+                },
+              } as never,
+            );
+            if (!emailError) {
+              await supabaseAdmin
+                .from("leads")
+                .update({ email_sent: true })
+                .eq("id", leadId);
+            }
+          } catch (err) {
+            console.warn("[leads] post-HubSpot follow-ups skipped:", err);
           }
-        } catch (err) {
-          console.warn("[leads] email enqueue skipped:", err);
         }
 
-        // Success from the customer's perspective: their request was saved.
-        // We report crmSynced separately so the UI can show a softer message
-        // when the CRM push didn't go through.
+        // If HubSpot failed AND we had nowhere to persist locally, surface
+        // an error so the caller retries — otherwise return success.
+        if (!hs.id && !leadId) {
+          return Response.json(
+            { error: hs.error ?? "HubSpot sync failed", code: "crm_unavailable" },
+            { status: 502 },
+          );
+        }
+
         return Response.json({
           ok: true,
-          id: lead.id,
+          id: leadId ?? hs.id,
           crmSynced: hs.id !== null,
         });
       },
